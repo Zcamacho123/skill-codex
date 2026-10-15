@@ -1,71 +1,73 @@
-Note: If you want a more autonomous setup for agentic workflows, check out [klaudworks/ralph-meets-rex](https://github.com/klaudworks/ralph-meets-rex).
-
 # Codex Integration for Claude Code
 
-<img width="2288" height="808" alt="skillcodex" src="https://github.com/user-attachments/assets/85336a9f-4680-479e-b3fe-d6a68cadc051" />
+Delegate reviews, implementation, debugging, and refactoring from Claude Code to the OpenAI Codex CLI. This fork adds task-based model defaults and a concise workflow with supporting references.
 
+## Requirements
 
-## Purpose
-Enable Claude Code to invoke the Codex CLI (`codex exec` and session resumes) for automated code analysis, refactoring, and editing workflows.
+- Claude Code with plugin support.
+- Codex CLI on `PATH`, authenticated and configured for the intended workspace.
+- Access to the selected model. Verify with the installed client; availability varies.
 
-## Prerequisites
-- `codex` CLI installed and available on `PATH`.
-- Codex configured with valid credentials and settings.
-- Confirm the installation by running `codex --version`; resolve any errors before using the skill.
+## Install this fork
 
-## Installation
+In Claude Code:
 
-This repository is structured as a [Claude Code Plugin](https://code.claude.com/docs/en/plugins) with a marketplace. You can install it as a **plugin** (recommended) or extract it as a **standalone skill**.
-
-### Option 1: Plugin Installation (Recommended)
-
-Install via Claude Code's plugin system for automatic updates:
-
-```
-/plugin marketplace add skills-directory/skill-codex
+```text
+/plugin marketplace add Zcamacho123/skill-codex
 /plugin install skill-codex@skill-codex
 ```
 
-### Option 2: Standalone Skill Installation
+This fork keeps the upstream marketplace/plugin names. If the upstream marketplace is already registered as `skill-codex`, remove that marketplace entry before adding this fork so the name resolves to the intended source. Inspect installed plugins in `/plugin`.
 
-Extract the skill folder manually:
+For local development, clone this repository, enter it, then run:
 
-```
-git clone --depth 1 git@github.com:skills-directory/skill-codex.git /tmp/skills-temp && \
-mkdir -p ~/.claude/skills && \
-cp -r /tmp/skills-temp/plugins/skill-codex/skills/codex ~/.claude/skills/codex && \
-rm -rf /tmp/skills-temp
-```
-
-## Usage
-
-### Important: Thinking Tokens
-By default, this skill suppresses thinking tokens (stderr output) using `2>/dev/null` to avoid bloating Claude Code's context window. If you want to see the thinking tokens for debugging or insight into Codex's reasoning process, explicitly ask Claude to show them.
-
-### Example Workflow
-
-**User prompt:**
-```
-Use codex to analyze this repository and suggest improvements for my claude code skill.
-```
-
-**Claude Code response:**
-Claude will activate the Codex skill and:
-1. Ask which model to use (`gpt-6-astra` by default; `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`; or a legacy model such as `gpt-5.5`) unless already specified in your prompt.
-2. Ask which reasoning effort level (`low`, `medium`, `high`, `xhigh`, `max`, or `ultra`, subject to the model's ceiling) unless already specified in your prompt.
-3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
-4. Run a command like:
 ```bash
-codex exec -m gpt-6-astra \
-  --config model_reasoning_effort="high" \
-  --sandbox read-only \
-  --full-auto \
-  --skip-git-repo-check \
-  "Analyze this Claude Code skill repository comprehensively..." 2>/dev/null
+claude --plugin-dir ./plugins/skill-codex
 ```
 
-**Result:**
-Claude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.
+For a standalone installation, copy `plugins/skill-codex/skills/codex/` from this checkout, including `references/`, into `~/.claude/skills/codex/`. Review or back up an existing installation first. Standalone copies need manual updates.
 
-### Detailed Instructions
-See [`plugins/skill-codex/skills/codex/SKILL.md`](plugins/skill-codex/skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.
+## Use
+
+```text
+/skill-codex:codex Review this entire codebase for architecture and correctness risks.
+/skill-codex:codex Review my settings feature against main, including uncommitted changes.
+/skill-codex:codex Implement the agreed validation rules and run the relevant tests.
+/skill-codex:codex Use Astra xhigh to investigate this cross-service race condition.
+```
+
+With the standalone installation, use `/codex`. Natural-language requests such as “Use Codex to review this feature” also match the skill.
+
+## Default models
+
+These are recommended presets for this plugin, not benchmark rankings. An explicit model or effort overrides its corresponding preset; existing preferences carry forward.
+
+| Work | Default | Effort |
+| --- | --- | --- |
+| Whole-codebase / architecture review | GPT-6 Astra | Medium |
+| Feature / PR review | GPT-6.1 Sol | Medium |
+| Implementation, routine debugging, refactoring, tests | GPT-6.1 Sol | Medium |
+| Difficult cross-system, security, or concurrency investigation | GPT-6 Astra | High |
+| Deep unresolved design analysis | GPT-6 Astra | Extra high |
+| Mechanical edits, diff summaries, extraction | GPT-6 Luna | Low |
+
+The general fallback is Sol 6.1 medium. Claude states the selection and proceeds without asking you to pick a model on every run. Read the [routing guide](plugins/skill-codex/skills/codex/references/model-routing.md) for exact IDs, escalation, availability, and dated official sources.
+
+## Execution behavior
+
+Reviews use read-only access; requested implementation uses workspace-write. The skill preserves runtime approvals, captures diagnostics, uses literal prompt input, and prefers a recorded session ID for follow-up. It checks findings and diffs before reporting success. It does not automatically broaden permissions, fix review findings, or change your global model configuration.
+
+## Maintenance and validation
+
+- [Core skill](plugins/skill-codex/skills/codex/SKILL.md)
+- [CLI examples and failure handling](plugins/skill-codex/skills/codex/references/cli-workflows.md)
+- [Plugin practices and validation cases](plugins/skill-codex/skills/codex/references/plugin-practices.md)
+
+```bash
+claude plugin validate ./plugins/skill-codex
+claude plugin validate .
+```
+
+When releasing changes, keep all package versions aligned and test installation plus representative task invocations in a disposable repository.
+
+Based on [skills-directory/skill-codex](https://github.com/skills-directory/skill-codex). Original attribution and MIT license are retained.
