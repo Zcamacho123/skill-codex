@@ -17,7 +17,7 @@ Delegate a bounded task, inspect the result, and continue the user's authorized 
    - For an unclassified task, use **Sol 6.1 medium**.
 3. Briefly state the model, effort, scope, and sandbox. Proceed without a model-selection questionnaire. Ask only when missing requirements materially change the task or required permission is absent. These defaults are starting recommendations, not benchmark results.
 4. Check `codex --version` and `codex exec --help` once per environment; check `codex exec resume --help` before resuming. Use the installed CLI's syntax. If Codex is missing or unauthenticated, report the specific setup blocker; do not install software or change credentials implicitly.
-5. Verify availability using the installed client's `/model` picker or, when supported by local help, `codex debug models`. Never infer CLI access from API documentation alone. Read the routing reference before substitutions or advanced efforts.
+5. Verify availability using the installed client's `/model` picker or, when supported by local help, `codex debug models`. Never infer CLI access from API documentation alone. Read the routing reference before substitutions, advanced efforts, or the optional Terra 6.1 choice for visual work and scoped fixes; Terra requires CLI 0.159.0 or later plus account access.
 
 ## Set permissions
 
