@@ -53,6 +53,14 @@ These are recommended presets for this plugin, not benchmark rankings. An explic
 
 The general fallback is Sol 6.1 medium. Claude states the selection and proceeds without asking you to pick a model on every run. Read the [routing guide](plugins/skill-codex/skills/codex/references/model-routing.md) for exact IDs, escalation, availability, and dated official sources.
 
+GPT-6.1 Terra is an optional choice for visual UI feedback, concise technical writing, and scoped fixes. It requires Codex CLI 0.159.0 or later and account access. Example:
+
+```text
+/skill-codex:codex Use GPT-6.1 Terra medium to review the supplied UI screenshots against the acceptance checklist. Report issues without editing files.
+```
+
+The routing guide also distinguishes restricted GPT-6 Cyber access and API retirement dates from general Codex availability.
+
 ## Execution behavior
 
 Reviews use read-only access; requested implementation uses workspace-write. The skill preserves runtime approvals, captures diagnostics, uses literal prompt input, and prefers a recorded session ID for follow-up. It checks findings and diffs before reporting success. It does not automatically broaden permissions, fix review findings, or change your global model configuration.
